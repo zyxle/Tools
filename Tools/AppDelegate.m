@@ -47,5 +47,39 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+// 打开链接 Tools:// 会调用方法，用来接收数据
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options
+{
+    [self handleOpenFromWidgetWithUrl:url];
+    return YES;
+}
+#else
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    [self handleOpenFromWidgetWithUrl:url];
+    return YES;
+}
+#endif
+// 处理Widget发过来的数据
+- (void)handleOpenFromWidgetWithUrl:(NSURL *)url {
+    if ([[url absoluteString] hasPrefix:URL_TYPES]) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:[NSString stringWithFormat:@"你点击了%@",[url host]] preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        UIAlertAction *shure = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        [alertController addAction:cancel];
+        [alertController addAction:shure];
+        
+        UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        alertWindow.rootViewController = [[UIViewController alloc] init];
+        alertWindow.windowLevel = UIWindowLevelAlert + 1;
+        [alertWindow makeKeyAndVisible];
+        [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+    }
+}
 
 @end
